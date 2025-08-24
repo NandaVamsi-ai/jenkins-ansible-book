@@ -1,0 +1,32 @@
+---
+---
+- name: Deploy AddressBook WAR on Tomcat
+  hosts: ansiblegroup
+  become: yes
+  tasks:
+    - name: Install Java
+      ansible.builtin.package:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Download Tomcat
+      ansible.builtin.get_url:
+        url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.108/bin/apache-tomcat-9.0.108.zip
+        dest: /home/devops/apache-tomcat-9.0.108.zip
+
+    - name: Unzip Tomcat
+      ansible.builtin.unarchive:
+        src: /home/devops/apache-tomcat-9.0.108.zip
+        dest: /home/devops/
+        remote_src: yes
+
+    - name: Copy WAR to Tomcat webapps
+      ansible.builtin.copy:
+        src: target/addressbook.war
+        dest: /home/devops/apache-tomcat-9.0.108/webapps/addressbook.war
+
+    - name: Start Tomcat
+      ansible.builtin.shell: /home/devops/apache-tomcat-9.0.108/bin/startup.sh
+      args:
+        executable: /bin/bash
+
